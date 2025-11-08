@@ -1,0 +1,48 @@
+{
+  "name": "calc",
+  "version": "1.0.0",
+  "description": "CLI spreadsheet viewer for processing racing entry lists",
+  "type": "module",
+  "main": "dist/cli.js",
+  "bin": {
+    "calc": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/cli.js",
+    "dev": "tsc && node dist/cli.js",
+    "lint": "eslint src --ext .ts,.tsx",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "keywords": [
+    "cli",
+    "spreadsheet",
+    "viewer",
+    "xlsx"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ink": "^4.4.1",
+    "ink-select-input": "^5.0.0",
+    "ink-text-input": "^5.0.1",
+    "react": "^18.2.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.1.5",
+    "@testing-library/react": "^14.1.2",
+    "@types/jest": "^29.5.11",
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.45",
+    "@typescript-eslint/eslint-plugin": "^6.13.2",
+    "@typescript-eslint/parser": "^6.13.2",
+    "eslint": "^8.55.0",
+    "ink-testing-library": "^3.0.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.3.3"
+  }
+}

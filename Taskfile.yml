@@ -1,0 +1,56 @@
+version: '3'
+
+tasks:
+  install:
+    desc: Install all project dependencies
+    cmds:
+      - npm install
+
+  build:
+    desc: Build the TypeScript project
+    cmds:
+      - npm run build
+    sources:
+      - src/**/*.ts
+      - src/**/*.tsx
+      - tsconfig.json
+    generates:
+      - dist/**/*.js
+
+  run:
+    desc: Run the CLI application
+    deps: [build]
+    cmds:
+      - npm start
+
+  dev:
+    desc: Build and run in development mode
+    cmds:
+      - npm run dev
+
+  lint:
+    desc: Lint the codebase
+    cmds:
+      - npm run lint
+
+  test:
+    desc: Run tests
+    cmds:
+      - npm test
+
+  test:watch:
+    desc: Run tests in watch mode
+    cmds:
+      - npm run test:watch
+
+  test:coverage:
+    desc: Run tests with coverage report
+    cmds:
+      - npm run test:coverage
+
+  clean:
+    desc: Remove all dependencies and generated artifacts
+    cmds:
+      - rm -rf node_modules
+      - rm -rf dist
+      - rm -f package-lock.json
