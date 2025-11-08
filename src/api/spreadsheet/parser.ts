@@ -25,6 +25,11 @@ export function parseSeriesSection(
       continue; // Skip empty rows
     }
 
+    // Skip waitlist entries
+    if (nameCell.trim().toLowerCase() === 'waitlist') {
+      continue;
+    }
+
     // Determine car selection based on series
     let carSelection = '';
     if (series === 'LMP3') {

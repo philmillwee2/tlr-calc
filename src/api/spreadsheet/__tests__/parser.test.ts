@@ -165,3 +165,96 @@ describe('parseSeriesSection - Car Selection', () => {
     expect(entries[0].series).toBe('GT3');
   });
 });
+
+describe('parseSeriesSection - Waitlist Exclusion', () => {
+  it('should skip rows with "Waitlist" as name (lowercase)', () => {
+    const testSheet: XLSX.WorkSheet = {
+      // Row 4 - Valid entry
+      B4: { v: '1', t: 's' },
+      C4: { v: 'John Doe', t: 's' },
+      D4: { v: 123456, t: 'n' },
+      F4: { v: '50', t: 's' },
+      G4: { v: 0, t: 'n' },
+      H4: { v: 0, t: 'n' },
+      N4: { v: 'false', t: 's' },
+      // Row 5 - Waitlist entry
+      C5: { v: 'waitlist', t: 's' },
+    };
+
+    const entries = parseSeriesSection(testSheet, 'LMP3', SERIES_CONFIGS.LMP3);
+
+    expect(entries).toHaveLength(1);
+    expect(entries[0].name).toBe('John Doe');
+  });
+
+  it('should skip rows with "Waitlist" as name (mixed case)', () => {
+    const testSheet: XLSX.WorkSheet = {
+      // Row 4 - Valid entry
+      B4: { v: '1', t: 's' },
+      C4: { v: 'John Doe', t: 's' },
+      D4: { v: 123456, t: 'n' },
+      F4: { v: '50', t: 's' },
+      G4: { v: 0, t: 'n' },
+      H4: { v: 0, t: 'n' },
+      N4: { v: 'false', t: 's' },
+      // Row 5 - Waitlist entry with capital W
+      C5: { v: 'Waitlist', t: 's' },
+      // Row 6 - Another valid entry
+      B6: { v: '2', t: 's' },
+      C6: { v: 'Jane Smith', t: 's' },
+      D6: { v: 789012, t: 'n' },
+      F6: { v: '51', t: 's' },
+      G6: { v: 0, t: 'n' },
+      H6: { v: 0, t: 'n' },
+      N6: { v: 'false', t: 's' },
+    };
+
+    const entries = parseSeriesSection(testSheet, 'LMP3', SERIES_CONFIGS.LMP3);
+
+    expect(entries).toHaveLength(2);
+    expect(entries[0].name).toBe('John Doe');
+    expect(entries[1].name).toBe('Jane Smith');
+  });
+
+  it('should skip rows with "Waitlist" for GT4 series', () => {
+    const testSheet: XLSX.WorkSheet = {
+      // Row 4 - Valid entry
+      S4: { v: '20', t: 's' },
+      T4: { v: 'Bob Jones', t: 's' },
+      U4: { v: 345678, t: 'n' },
+      W4: { v: '60', t: 's' },
+      X4: { v: 0, t: 'n' },
+      Y4: { v: 0, t: 'n' },
+      AE4: { v: 'BMW M4', t: 's' },
+      AG4: { v: 'false', t: 's' },
+      // Row 5 - Waitlist
+      T5: { v: 'WAITLIST', t: 's' },
+    };
+
+    const entries = parseSeriesSection(testSheet, 'GT4', SERIES_CONFIGS.GT4);
+
+    expect(entries).toHaveLength(1);
+    expect(entries[0].name).toBe('Bob Jones');
+  });
+
+  it('should skip rows with "Waitlist" for GT3 series', () => {
+    const testSheet: XLSX.WorkSheet = {
+      // Row 4 - Valid entry
+      AI4: { v: '10', t: 's' },
+      AJ4: { v: 'Jane Smith', t: 's' },
+      AK4: { v: 789012, t: 'n' },
+      AM4: { v: '70', t: 's' },
+      AN4: { v: 0, t: 'n' },
+      AO4: { v: 0, t: 'n' },
+      AT4: { v: 'Porsche 992', t: 's' },
+      AU4: { v: 'false', t: 's' },
+      // Row 5 - Waitlist with spaces
+      AJ5: { v: '  Waitlist  ', t: 's' },
+    };
+
+    const entries = parseSeriesSection(testSheet, 'GT3', SERIES_CONFIGS.GT3);
+
+    expect(entries).toHaveLength(1);
+    expect(entries[0].name).toBe('Jane Smith');
+  });
+});
