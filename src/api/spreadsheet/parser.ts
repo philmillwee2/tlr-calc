@@ -45,10 +45,10 @@ export function parseSeriesSection(
       iRacingNumber: parseInt(getCellValue(sheet, row, config.columns.iRacingNumber)) || 0,
       carNumber: getCellValue(sheet, row, config.columns.carNumber) || '',
       class: getCellValue(sheet, row, config.columns.class) || '',
-      series: series,
+      series,
       licensePoints: parseInt(getCellValue(sheet, row, config.columns.licensePoints)) || 0,
       protests: parseInt(getCellValue(sheet, row, config.columns.protests)) || 0,
-      carSelection: carSelection,
+      carSelection,
       carSwap: parseBooleanValue(getCellValue(sheet, row, config.columns.carSwap))
     };
 
@@ -63,20 +63,22 @@ export function parseSeriesSection(
  */
 export function getCellValue(sheet: XLSX.WorkSheet, row: number, col: number): string {
   const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
-  const cell = sheet[cellAddress];
+  const cell = sheet[cellAddress] as XLSX.CellObject | undefined;
 
-  if (!cell) {
+  if (cell?.v === undefined) {
     return '';
   }
 
-  return cell.v?.toString() || '';
+  return String(cell.v);
 }
 
 /**
  * Parses boolean values from various formats
  */
 export function parseBooleanValue(value: string): boolean {
-  if (!value) return false;
+  if (!value) {
+return false;
+}
 
   const normalized = value.toString().toLowerCase().trim();
   return normalized === 'true' || normalized === '1' || normalized === 'yes';

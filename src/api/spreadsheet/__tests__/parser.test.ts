@@ -100,8 +100,8 @@ describe('parseSeriesSection - Car Selection', () => {
     const entries = parseSeriesSection(testSheet, 'LMP3', SERIES_CONFIGS.LMP3);
 
     expect(entries).toHaveLength(1);
-    expect(entries[0].carSelection).toBe('Ligier');
-    expect(entries[0].series).toBe('LMP3');
+    expect(entries[0]?.carSelection).toBe('Ligier');
+    expect(entries[0]?.series).toBe('LMP3');
   });
 
   it('should read carSelection from car column for GT3 entries', () => {
@@ -121,8 +121,8 @@ describe('parseSeriesSection - Car Selection', () => {
     const entries = parseSeriesSection(testSheet, 'GT3', SERIES_CONFIGS.GT3);
 
     expect(entries).toHaveLength(1);
-    expect(entries[0].carSelection).toBe('Porsche 992');
-    expect(entries[0].series).toBe('GT3');
+    expect(entries[0]?.carSelection).toBe('Porsche 992');
+    expect(entries[0]?.series).toBe('GT3');
   });
 
   it('should read carSelection from car column for GT4 entries', () => {
@@ -142,8 +142,8 @@ describe('parseSeriesSection - Car Selection', () => {
     const entries = parseSeriesSection(testSheet, 'GT4', SERIES_CONFIGS.GT4);
 
     expect(entries).toHaveLength(1);
-    expect(entries[0].carSelection).toBe('BMW M4');
-    expect(entries[0].series).toBe('GT4');
+    expect(entries[0]?.carSelection).toBe('BMW M4');
+    expect(entries[0]?.series).toBe('GT4');
   });
 
   it('should handle empty car selection for GT3 when cell is empty', () => {
@@ -161,8 +161,8 @@ describe('parseSeriesSection - Car Selection', () => {
     const entries = parseSeriesSection(testSheet, 'GT3', SERIES_CONFIGS.GT3);
 
     expect(entries).toHaveLength(1);
-    expect(entries[0].carSelection).toBe('');
-    expect(entries[0].series).toBe('GT3');
+    expect(entries[0]?.carSelection).toBe('');
+    expect(entries[0]?.series).toBe('GT3');
   });
 });
 
@@ -184,7 +184,7 @@ describe('parseSeriesSection - Waitlist Exclusion', () => {
     const entries = parseSeriesSection(testSheet, 'LMP3', SERIES_CONFIGS.LMP3);
 
     expect(entries).toHaveLength(1);
-    expect(entries[0].name).toBe('John Doe');
+    expect(entries[0]?.name).toBe('John Doe');
   });
 
   it('should skip rows with "Waitlist" as name (mixed case)', () => {
@@ -212,8 +212,8 @@ describe('parseSeriesSection - Waitlist Exclusion', () => {
     const entries = parseSeriesSection(testSheet, 'LMP3', SERIES_CONFIGS.LMP3);
 
     expect(entries).toHaveLength(2);
-    expect(entries[0].name).toBe('John Doe');
-    expect(entries[1].name).toBe('Jane Smith');
+    expect(entries[0]?.name).toBe('John Doe');
+    expect(entries[1]?.name).toBe('Jane Smith');
   });
 
   it('should skip rows with "Waitlist" for GT4 series', () => {
@@ -234,7 +234,7 @@ describe('parseSeriesSection - Waitlist Exclusion', () => {
     const entries = parseSeriesSection(testSheet, 'GT4', SERIES_CONFIGS.GT4);
 
     expect(entries).toHaveLength(1);
-    expect(entries[0].name).toBe('Bob Jones');
+    expect(entries[0]?.name).toBe('Bob Jones');
   });
 
   it('should skip rows with "Waitlist" for GT3 series', () => {
@@ -255,6 +255,6 @@ describe('parseSeriesSection - Waitlist Exclusion', () => {
     const entries = parseSeriesSection(testSheet, 'GT3', SERIES_CONFIGS.GT3);
 
     expect(entries).toHaveLength(1);
-    expect(entries[0].name).toBe('Jane Smith');
+    expect(entries[0]?.name).toBe('Jane Smith');
   });
 });

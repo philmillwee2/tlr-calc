@@ -30,7 +30,9 @@ export function loadXLSX(filePath: string): DriverEntry[] {
 /**
  * Loads standings data from an XLSX file
  */
-export function loadStandings(filePath: string): { LMP3: StandingsEntry[]; GT4: StandingsEntry[]; GT3: StandingsEntry[] } {
+export function loadStandings(
+  filePath: string
+): { LMP3: StandingsEntry[]; GT4: StandingsEntry[]; GT3: StandingsEntry[] } {
   if (!fs.existsSync(filePath)) {
     throw new Error(`File not found: ${filePath}`);
   }

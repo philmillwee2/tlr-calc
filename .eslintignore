@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Coverage
+coverage/
+
+# Temporary files
+tmp/
+*.tmp
+
+# Config files (handled by overrides in .eslintrc.cjs)
+*.config.js
+*.config.cjs
+jest.config.cjs
+
+# Generated files
+*.d.ts
+
+# Documentation
+*.md

@@ -14,8 +14,14 @@ import { loadAllData, DriverEntry, StandingsEntry } from '../api/index.js';
 export const App: React.FC = () => {
   const [loadedFile, setLoadedFile] = useState<string | null>(null);
   const [data, setData] = useState<DriverEntry[] | null>(null);
-  const [standingsData, setStandingsData] = useState<{ LMP3: StandingsEntry[]; GT4: StandingsEntry[]; GT3: StandingsEntry[] } | null>(null);
-  const [currentView, setCurrentView] = useState<'menu' | 'pager' | 'standingsPager' | 'fileInput'>('menu');
+  const [standingsData, setStandingsData] = useState<{
+    LMP3: StandingsEntry[];
+    GT4: StandingsEntry[];
+    GT3: StandingsEntry[];
+  } | null>(null);
+  const [currentView, setCurrentView] = useState<'menu' | 'pager' | 'standingsPager' | 'fileInput'>(
+    'menu'
+  );
   const [error, setError] = useState<string | null>(null);
 
   const handleLoadFile = () => {
@@ -34,7 +40,7 @@ export const App: React.FC = () => {
 
     // Expand ~ to home directory
     if (sanitized.startsWith('~')) {
-      const homeDir = process.env.HOME || process.env.USERPROFILE || '~';
+      const homeDir = process.env.HOME ?? process.env.USERPROFILE ?? '~';
       sanitized = sanitized.replace(/^~/, homeDir);
     }
 

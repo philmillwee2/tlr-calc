@@ -123,6 +123,11 @@ describe('STANDINGS_CONFIGS', () => {
         const currentRound = config.roundColumns[i];
         const nextRound = config.roundColumns[i + 1];
 
+        // Skip if either is undefined (shouldn't happen with valid config)
+        if (!currentRound || !nextRound) {
+          continue;
+        }
+
         // Sprint and feature should be adjacent
         expect(currentRound.feature).toBe(currentRound.sprint + 1);
         // Next round should start 2 columns later

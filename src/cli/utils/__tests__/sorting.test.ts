@@ -46,9 +46,9 @@ describe('createSortComparator', () => {
         { value: 3 },
       ];
       const sorted = [...equalData].sort(createSortComparator<NumberData>('value', 'asc'));
-      expect(sorted[0].value).toBe(3);
-      expect(sorted[1].value).toBe(5);
-      expect(sorted[2].value).toBe(5);
+      expect(sorted[0]?.value).toBe(3);
+      expect(sorted[1]?.value).toBe(5);
+      expect(sorted[2]?.value).toBe(5);
     });
   });
 
@@ -69,19 +69,19 @@ describe('createSortComparator', () => {
       const sorted = [...data].sort(createSortComparator<StringData>('name', 'asc'));
       const names = sorted.map(d => d.name);
       // apple and Apple should be adjacent
-      expect(names[0].toLowerCase()).toBe('apple');
-      expect(names[1].toLowerCase()).toBe('apple');
-      expect(names[2].toLowerCase()).toBe('banana');
-      expect(names[3].toLowerCase()).toBe('cherry');
-      expect(names[4].toLowerCase()).toBe('zebra');
+      expect(names[0]?.toLowerCase()).toBe('apple');
+      expect(names[1]?.toLowerCase()).toBe('apple');
+      expect(names[2]?.toLowerCase()).toBe('banana');
+      expect(names[3]?.toLowerCase()).toBe('cherry');
+      expect(names[4]?.toLowerCase()).toBe('zebra');
     });
 
     it('should sort strings descending (case-insensitive)', () => {
       const sorted = [...data].sort(createSortComparator<StringData>('name', 'desc'));
       const names = sorted.map(d => d.name);
-      expect(names[0].toLowerCase()).toBe('zebra');
-      expect(names[1].toLowerCase()).toBe('cherry');
-      expect(names[2].toLowerCase()).toBe('banana');
+      expect(names[0]?.toLowerCase()).toBe('zebra');
+      expect(names[1]?.toLowerCase()).toBe('cherry');
+      expect(names[2]?.toLowerCase()).toBe('banana');
     });
 
     it('should handle empty strings', () => {
@@ -91,9 +91,9 @@ describe('createSortComparator', () => {
         { name: 'apple' },
       ];
       const sorted = [...emptyData].sort(createSortComparator<StringData>('name', 'asc'));
-      expect(sorted[0].name).toBe('');
-      expect(sorted[1].name).toBe('apple');
-      expect(sorted[2].name).toBe('zebra');
+      expect(sorted[0]?.name).toBe('');
+      expect(sorted[1]?.name).toBe('apple');
+      expect(sorted[2]?.name).toBe('zebra');
     });
   });
 
@@ -111,18 +111,18 @@ describe('createSortComparator', () => {
 
     it('should sort booleans ascending (false < true)', () => {
       const sorted = [...data].sort(createSortComparator<BooleanData>('active', 'asc'));
-      expect(sorted[0].active).toBe(false);
-      expect(sorted[1].active).toBe(false);
-      expect(sorted[2].active).toBe(true);
-      expect(sorted[3].active).toBe(true);
+      expect(sorted[0]?.active).toBe(false);
+      expect(sorted[1]?.active).toBe(false);
+      expect(sorted[2]?.active).toBe(true);
+      expect(sorted[3]?.active).toBe(true);
     });
 
     it('should sort booleans descending (true > false)', () => {
       const sorted = [...data].sort(createSortComparator<BooleanData>('active', 'desc'));
-      expect(sorted[0].active).toBe(true);
-      expect(sorted[1].active).toBe(true);
-      expect(sorted[2].active).toBe(false);
-      expect(sorted[3].active).toBe(false);
+      expect(sorted[0]?.active).toBe(true);
+      expect(sorted[1]?.active).toBe(true);
+      expect(sorted[2]?.active).toBe(false);
+      expect(sorted[3]?.active).toBe(false);
     });
   });
 
@@ -160,10 +160,10 @@ describe('createSortComparator', () => {
         { value: undefined },
       ];
       const sorted = [...data].sort(createSortComparator<NullableData>('value', 'asc'));
-      expect(sorted[0].value).toBeNull();
-      expect(sorted[1].value).toBeUndefined();
-      expect(sorted[2].value).toBe(3);
-      expect(sorted[3].value).toBe(5);
+      expect(sorted[0]?.value).toBeNull();
+      expect(sorted[1]?.value).toBeUndefined();
+      expect(sorted[2]?.value).toBe(3);
+      expect(sorted[3]?.value).toBe(5);
     });
 
     it('should sort nulls to end for descending', () => {
@@ -174,10 +174,10 @@ describe('createSortComparator', () => {
         { value: undefined },
       ];
       const sorted = [...data].sort(createSortComparator<NullableData>('value', 'desc'));
-      expect(sorted[0].value).toBe(5);
-      expect(sorted[1].value).toBe(3);
-      expect(sorted[2].value).toBeNull();
-      expect(sorted[3].value).toBeUndefined();
+      expect(sorted[0]?.value).toBe(5);
+      expect(sorted[1]?.value).toBe(3);
+      expect(sorted[2]?.value).toBeNull();
+      expect(sorted[3]?.value).toBeUndefined();
     });
   });
 
@@ -203,9 +203,9 @@ describe('createSortComparator', () => {
           (item) => item.meta.score
         )
       );
-      expect(sorted[0].meta.score).toBe(50);
-      expect(sorted[1].meta.score).toBe(100);
-      expect(sorted[2].meta.score).toBe(200);
+      expect(sorted[0]?.meta.score).toBe(50);
+      expect(sorted[1]?.meta.score).toBe(100);
+      expect(sorted[2]?.meta.score).toBe(200);
     });
 
     it('should handle custom getValue returning different types', () => {
@@ -229,9 +229,9 @@ describe('createSortComparator', () => {
         )
       );
 
-      expect(sorted[0].tags.length).toBe(1);
-      expect(sorted[1].tags.length).toBe(2);
-      expect(sorted[2].tags.length).toBe(3);
+      expect(sorted[0]?.tags.length).toBe(1);
+      expect(sorted[1]?.tags.length).toBe(2);
+      expect(sorted[2]?.tags.length).toBe(3);
     });
   });
 

@@ -71,7 +71,7 @@ export const StandingsPager: React.FC<StandingsPagerProps> = ({ data, onExit }) 
   // Helper function to get race result value for sorting
   const getRaceValueForSort = (entry: StandingsEntry, key: string): number => {
     const match = key.match(/r(\d+)_(sprint|feature)/);
-    if (match) {
+    if (match?.[1] && match?.[2]) {
       const round = parseInt(match[1]);
       const raceType = match[2] === 'sprint' ? 'Sprint' : 'Feature';
       const result = entry.raceResults.find(r => r.round === round && r.raceType === raceType);
@@ -83,6 +83,9 @@ export const StandingsPager: React.FC<StandingsPagerProps> = ({ data, onExit }) 
   // Apply sorting
   const applySorting = (colIndex: number, direction: SortDirection) => {
     const column = columns[colIndex];
+    if (!column) {
+      return;
+    }
 
     if (column.key.startsWith('r')) {
       // Race column - extract points from raceResults
@@ -204,17 +207,25 @@ export const StandingsPager: React.FC<StandingsPagerProps> = ({ data, onExit }) 
       // Next search result
       const nextIndex = (currentSearchIndex + 1) % searchResults.length;
       setCurrentSearchIndex(nextIndex);
-      scrollOffsetRef.current = searchResults[nextIndex];
+      const nextResult = searchResults[nextIndex];
+      if (nextResult !== undefined) {
+        scrollOffsetRef.current = nextResult;
+      }
     } else if (input === 'N' && searchResults.length > 0) {
       // Previous search result
       const prevIndex = currentSearchIndex === 0 ? searchResults.length - 1 : currentSearchIndex - 1;
       setCurrentSearchIndex(prevIndex);
-      scrollOffsetRef.current = searchResults[prevIndex];
+      const prevResult = searchResults[prevIndex];
+      if (prevResult !== undefined) {
+        scrollOffsetRef.current = prevResult;
+      }
     }
   });
 
   const performSearch = () => {
-    if (!searchTerm) return;
+    if (!searchTerm) {
+return;
+}
 
     const results: number[] = [];
     const term = searchTerm.toLowerCase();
@@ -236,13 +247,17 @@ export const StandingsPager: React.FC<StandingsPagerProps> = ({ data, onExit }) 
 
     setSearchResults(results);
     if (results.length > 0) {
+      const firstResult = results[0];
+      const lastResult = results[results.length - 1];
       const startIndex = searchMode === 'forward' ?
-        results.find(i => i >= scrollOffset) || results[0] :
-        [...results].reverse().find(i => i <= scrollOffset) || results[results.length - 1];
+        results.find(i => i >= scrollOffset) ?? firstResult :
+        [...results].reverse().find(i => i <= scrollOffset) ?? lastResult;
 
-      const indexInResults = results.indexOf(startIndex);
-      setCurrentSearchIndex(indexInResults);
-      scrollOffsetRef.current = startIndex;
+      if (startIndex !== undefined) {
+        const indexInResults = results.indexOf(startIndex);
+        setCurrentSearchIndex(indexInResults);
+        scrollOffsetRef.current = startIndex;
+      }
     }
   };
 
@@ -260,8 +275,12 @@ export const StandingsPager: React.FC<StandingsPagerProps> = ({ data, onExit }) 
 
             // Determine color
             let color: string = 'cyan';
-            if (isSorted) color = 'yellow';      // Sorted column
-            if (isSelected) color = 'green';     // Currently selected in sort mode
+            if (isSorted) {
+              color = 'yellow';
+            }      // Sorted column
+            if (isSelected) {
+              color = 'green';
+            }     // Currently selected in sort mode
 
             // Sort indicator
             const sortIndicator = isSorted
@@ -304,7 +323,7 @@ export const StandingsPager: React.FC<StandingsPagerProps> = ({ data, onExit }) 
                   } else if (col.key.startsWith('r')) {
                     // Parse round and race type from key (e.g., 'r1_sprint' -> round 1, Sprint)
                     const match = col.key.match(/r(\d+)_(sprint|feature)/);
-                    if (match) {
+                    if (match?.[1] && match?.[2]) {
                       const round = parseInt(match[1]);
                       const raceType = match[2] === 'sprint' ? 'Sprint' : 'Feature';
                       value = getRaceValue(entry, round, raceType);
@@ -336,13 +355,16 @@ export const StandingsPager: React.FC<StandingsPagerProps> = ({ data, onExit }) 
             </>
           ) : sortMode ? (
             <>SORT MODE: Use ←→ to select column, Enter to sort, ESC to cancel</>
-          ) : sortColumn !== null ? (
+          ) : sortColumn !== null && columns[sortColumn] ? (
             <>
-              Showing {scrollOffset + 1}-{Math.min(scrollOffset + pageSize, displayData.length)} of {displayData.length} | Sorted by: {columns[sortColumn].label} {sortDirection === 'asc' ? '↑' : '↓'}
+              Showing {scrollOffset + 1}-{Math.min(scrollOffset + pageSize, displayData.length)} of{' '}
+              {displayData.length} | Sorted by: {columns[sortColumn]?.label}{' '}
+              {sortDirection === 'asc' ? '↑' : '↓'}
             </>
           ) : (
             <>
-              Showing {scrollOffset + 1}-{Math.min(scrollOffset + pageSize, displayData.length)} of {displayData.length} entries
+              Showing {scrollOffset + 1}-{Math.min(scrollOffset + pageSize, displayData.length)} of{' '}
+              {displayData.length} entries
               {searchResults.length > 0 && (
                 <> | Match {currentSearchIndex + 1}/{searchResults.length}</>
               )}
@@ -354,7 +376,8 @@ export const StandingsPager: React.FC<StandingsPagerProps> = ({ data, onExit }) 
       {/* Help text */}
       <Box marginTop={1}>
         <Text dimColor>
-          ↑↓: Line | PgUp/PgDn/Space: Page | ←→: Scroll | g/G: Top/Bottom | s: Sort | /?: Search | n/N: Next/Prev | q: Quit
+          ↑↓: Line | PgUp/PgDn/Space: Page | ←→: Scroll | g/G: Top/Bottom | s: Sort | /?: Search |{' '}
+          n/N: Next/Prev | q: Quit
         </Text>
       </Box>
     </Box>

@@ -25,7 +25,9 @@ function compareStrings(a: string, b: string, direction: SortDirection): number 
  * Compares two booleans for sorting (false < true)
  */
 function compareBooleans(a: boolean, b: boolean, direction: SortDirection): number {
-  if (a === b) return 0;
+  if (a === b) {
+return 0;
+}
   const result = a ? 1 : -1;
   return direction === 'asc' ? result : -result;
 }
@@ -33,7 +35,7 @@ function compareBooleans(a: boolean, b: boolean, direction: SortDirection): numb
 /**
  * Compares mixed types by converting to strings
  */
-function compareMixed(a: any, b: any, direction: SortDirection): number {
+function compareMixed(a: unknown, b: unknown, direction: SortDirection): number {
   const aStr = String(a).toLowerCase();
   const bStr = String(b).toLowerCase();
   const result = aStr.localeCompare(bStr);
@@ -51,12 +53,12 @@ function compareMixed(a: any, b: any, direction: SortDirection): number {
 export function createSortComparator<T>(
   key: keyof T | string,
   direction: SortDirection,
-  getValue?: (item: T, key: string) => any
+  getValue?: (item: T, key: string) => unknown
 ): (a: T, b: T) => number {
   return (a: T, b: T): number => {
     // Extract values
-    let aVal: any;
-    let bVal: any;
+    let aVal: unknown;
+    let bVal: unknown;
 
     if (getValue) {
       // Custom value extraction
@@ -69,9 +71,15 @@ export function createSortComparator<T>(
     }
 
     // Handle null/undefined
-    if (aVal == null && bVal == null) return 0;
-    if (aVal == null) return direction === 'asc' ? -1 : 1;
-    if (bVal == null) return direction === 'asc' ? 1 : -1;
+    if (aVal == null && bVal == null) {
+      return 0;
+    }
+    if (aVal == null) {
+      return direction === 'asc' ? -1 : 1;
+    }
+    if (bVal == null) {
+      return direction === 'asc' ? 1 : -1;
+    }
 
     // Type-specific comparison
     const aType = typeof aVal;
@@ -79,14 +87,14 @@ export function createSortComparator<T>(
 
     // Both same type
     if (aType === bType) {
-      if (aType === 'number') {
-        return compareNumbers(aVal, bVal, direction);
+      if (aType === 'number' && typeof bVal === 'number') {
+        return compareNumbers(aVal as number, bVal, direction);
       }
-      if (aType === 'string') {
-        return compareStrings(aVal, bVal, direction);
+      if (aType === 'string' && typeof bVal === 'string') {
+        return compareStrings(aVal as string, bVal, direction);
       }
-      if (aType === 'boolean') {
-        return compareBooleans(aVal, bVal, direction);
+      if (aType === 'boolean' && typeof bVal === 'boolean') {
+        return compareBooleans(aVal as boolean, bVal, direction);
       }
     }
 

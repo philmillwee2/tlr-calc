@@ -33,6 +33,11 @@ tasks:
     cmds:
       - npm run lint
 
+  lint:fix:
+    desc: Lint and auto-fix issues
+    cmds:
+      - npm run lint:fix
+
   test:
     desc: Run tests
     cmds:

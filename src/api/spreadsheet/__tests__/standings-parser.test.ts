@@ -126,17 +126,17 @@ describe('parseStandingsSheet', () => {
       });
 
       // Check race results
-      expect(entries[0].raceResults).toContainEqual({
+      expect(entries[0]?.raceResults).toContainEqual({
         round: 1,
         raceType: 'Sprint',
         points: 12
       });
-      expect(entries[0].raceResults).toContainEqual({
+      expect(entries[0]?.raceResults).toContainEqual({
         round: 1,
         raceType: 'Feature',
         points: 25
       });
-      expect(entries[0].raceResults).toContainEqual({
+      expect(entries[0]?.raceResults).toContainEqual({
         round: 2,
         raceType: 'Sprint',
         points: 15
@@ -157,8 +157,8 @@ describe('parseStandingsSheet', () => {
 
       const entries = parseStandingsSheet(testSheet, 'LMP3', STANDINGS_CONFIGS.LMP3);
 
-      expect(entries[0].raceResults).toHaveLength(2);
-      expect(entries[0].raceResults).not.toContainEqual(
+      expect(entries[0]?.raceResults).toHaveLength(2);
+      expect(entries[0]?.raceResults).not.toContainEqual(
         expect.objectContaining({ round: 2 })
       );
     });
@@ -217,8 +217,8 @@ describe('parseStandingsSheet', () => {
 
       const entries = parseStandingsSheet(testSheet, 'LMP3', STANDINGS_CONFIGS.LMP3);
 
-      expect(entries[0].name).toBe('John Doe');
-      expect(entries[0].overallRank).toBe(1); // Should match despite whitespace
+      expect(entries[0]?.name).toBe('John Doe');
+      expect(entries[0]?.overallRank).toBe(1); // Should match despite whitespace
     });
 
     it('should default to rank 0 if not found in overall standings', () => {
@@ -230,7 +230,7 @@ describe('parseStandingsSheet', () => {
 
       const entries = parseStandingsSheet(testSheet, 'LMP3', STANDINGS_CONFIGS.LMP3);
 
-      expect(entries[0].overallRank).toBe(0);
+      expect(entries[0]?.overallRank).toBe(0);
     });
   });
 
@@ -274,7 +274,7 @@ describe('parseStandingsSheet', () => {
 
       const entries = parseStandingsSheet(testSheet, 'GT3', STANDINGS_CONFIGS.GT3);
 
-      expect(entries[0].series).toBe('GT3');
+      expect(entries[0]?.series).toBe('GT3');
     });
   });
 });

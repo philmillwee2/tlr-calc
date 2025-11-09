@@ -110,14 +110,14 @@ export function parseStandingsSheet(
     }
 
     // Get overall rank (default to 0 if not found)
-    const overallRank = rankings.get(name.trim()) || 0;
+    const overallRank = rankings.get(name.trim()) ?? 0;
 
     const entry: StandingsEntry = {
       name: name.trim(),
-      series: series,
-      totalPoints: totalPoints,
-      raceResults: raceResults,
-      overallRank: overallRank
+      series,
+      totalPoints,
+      raceResults,
+      overallRank
     };
 
     entries.push(entry);
