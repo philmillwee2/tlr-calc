@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Text, useInput, Key } from 'ink';
 import { StandingsEntry } from '../../api/index.js';
 import { useScrollOffset } from '../hooks/useScrollOffset.js';
+import { createSortComparator, SortDirection } from '../utils/sorting.js';
 
 interface StandingsPagerProps {
   data: StandingsEntry[];
@@ -19,8 +20,21 @@ export const StandingsPager: React.FC<StandingsPagerProps> = ({ data, onExit }) 
   const [searchResults, setSearchResults] = useState<number[]>([]);
   const [currentSearchIndex, setCurrentSearchIndex] = useState(0);
 
+  // Sorting state
+  const [sortMode, setSortMode] = useState<boolean>(false);
+  const [sortColumn, setSortColumn] = useState<number | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [selectedColumn, setSelectedColumn] = useState<number>(0);
+  const [displayData, setDisplayData] = useState<StandingsEntry[]>(data);
+
   const pageSize = 20; // Number of rows to display at once
-  const maxScroll = Math.max(0, data.length - pageSize);
+  const maxScroll = Math.max(0, displayData.length - pageSize);
+
+  // Reset displayData when props change
+  useEffect(() => {
+    setDisplayData(data);
+    setSortColumn(null);
+  }, [data]);
 
   // Define all columns (20 total)
   const columns = [
@@ -54,7 +68,98 @@ export const StandingsPager: React.FC<StandingsPagerProps> = ({ data, onExit }) 
     return result ? String(result.points) : '0';
   };
 
+  // Helper function to get race result value for sorting
+  const getRaceValueForSort = (entry: StandingsEntry, key: string): number => {
+    const match = key.match(/r(\d+)_(sprint|feature)/);
+    if (match) {
+      const round = parseInt(match[1]);
+      const raceType = match[2] === 'sprint' ? 'Sprint' : 'Feature';
+      const result = entry.raceResults.find(r => r.round === round && r.raceType === raceType);
+      return result ? result.points : 0;
+    }
+    return 0;
+  };
+
+  // Apply sorting
+  const applySorting = (colIndex: number, direction: SortDirection) => {
+    const column = columns[colIndex];
+
+    if (column.key.startsWith('r')) {
+      // Race column - extract points from raceResults
+      const sorted = [...displayData].sort((a, b) => {
+        const aVal = getRaceValueForSort(a, column.key);
+        const bVal = getRaceValueForSort(b, column.key);
+        return direction === 'asc' ? aVal - bVal : bVal - aVal;
+      });
+      setDisplayData(sorted);
+    } else {
+      // Standard column
+      const sorted = [...displayData].sort(
+        createSortComparator<StandingsEntry>(
+          column.key as keyof StandingsEntry,
+          direction
+        )
+      );
+      setDisplayData(sorted);
+    }
+  };
+
   useInput((input: string, key: Key) => {
+    // Sort mode handling
+    if (input === 's' && searchMode === 'none') {
+      if (sortMode && sortColumn !== null) {
+        // Already in sort mode - jump to current sort column
+        setSelectedColumn(sortColumn);
+      } else {
+        // Enter sort mode
+        setSortMode(true);
+        setSelectedColumn(sortColumn ?? 0);
+      }
+      return;
+    }
+
+    if (sortMode) {
+      if (key.escape) {
+        setSortMode(false);
+        return;
+      }
+
+      if (key.leftArrow) {
+        setSelectedColumn(prev => Math.max(0, prev - 1));
+        return;
+      }
+
+      if (key.rightArrow) {
+        setSelectedColumn(prev => Math.min(columns.length - 1, prev + 1));
+        return;
+      }
+
+      if (key.return) {
+        // Apply sort
+        if (sortColumn === selectedColumn) {
+          // Toggle direction
+          const newDirection: SortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+          setSortDirection(newDirection);
+          applySorting(selectedColumn, newDirection);
+        } else {
+          // New column - start with ascending
+          setSortColumn(selectedColumn);
+          setSortDirection('asc');
+          applySorting(selectedColumn, 'asc');
+        }
+
+        // Clear search results
+        setSearchResults([]);
+        setCurrentSearchIndex(0);
+
+        // Exit sort mode
+        setSortMode(false);
+        return;
+      }
+
+      return; // Prevent normal controls
+    }
+
     if (searchMode !== 'none') {
       // Handle search input
       if (key.return) {
@@ -115,7 +220,7 @@ export const StandingsPager: React.FC<StandingsPagerProps> = ({ data, onExit }) 
     const results: number[] = [];
     const term = searchTerm.toLowerCase();
 
-    data.forEach((entry, index) => {
+    displayData.forEach((entry, index) => {
       // Search in name, series, total points, rank, and all race results
       const searchableText = [
         entry.name,
@@ -142,18 +247,37 @@ export const StandingsPager: React.FC<StandingsPagerProps> = ({ data, onExit }) 
     }
   };
 
-  const visibleData = data.slice(scrollOffset, scrollOffset + pageSize);
+  const visibleData = displayData.slice(scrollOffset, scrollOffset + pageSize);
 
   return (
     <Box flexDirection="column">
       {/* Header */}
       <Box borderStyle="single" paddingX={1} marginBottom={1}>
         <Text bold>
-          {visibleColumns.map(col => (
-            <Text key={col.key} color="cyan">
-              {col.label.padEnd(col.width)}
-            </Text>
-          ))}
+          {visibleColumns.map((col, visibleIdx) => {
+            const actualColIndex = horizontalOffset + visibleIdx;
+            const isSorted = sortColumn === actualColIndex;
+            const isSelected = sortMode && selectedColumn === actualColIndex;
+
+            // Determine color
+            let color: string = 'cyan';
+            if (isSorted) color = 'yellow';      // Sorted column
+            if (isSelected) color = 'green';     // Currently selected in sort mode
+
+            // Sort indicator
+            const sortIndicator = isSorted
+              ? (sortDirection === 'asc' ? ' ↑' : ' ↓')
+              : '';
+
+            const labelWithIndicator = col.label + sortIndicator;
+            const padding = Math.max(0, col.width - labelWithIndicator.length);
+
+            return (
+              <Text key={col.key} color={color}>
+                {labelWithIndicator}{' '.repeat(padding)}
+              </Text>
+            );
+          })}
         </Text>
       </Box>
 
@@ -211,9 +335,15 @@ export const StandingsPager: React.FC<StandingsPagerProps> = ({ data, onExit }) 
             <>
               {searchMode === 'forward' ? '/' : '?'}{searchTerm}
             </>
+          ) : sortMode ? (
+            <>SORT MODE: Use ←→ to select column, Enter to sort, ESC to cancel</>
+          ) : sortColumn !== null ? (
+            <>
+              Showing {scrollOffset + 1}-{Math.min(scrollOffset + pageSize, displayData.length)} of {displayData.length} | Sorted by: {columns[sortColumn].label} {sortDirection === 'asc' ? '↑' : '↓'}
+            </>
           ) : (
             <>
-              Showing {scrollOffset + 1}-{Math.min(scrollOffset + pageSize, data.length)} of {data.length} entries
+              Showing {scrollOffset + 1}-{Math.min(scrollOffset + pageSize, displayData.length)} of {displayData.length} entries
               {searchResults.length > 0 && (
                 <> | Match {currentSearchIndex + 1}/{searchResults.length}</>
               )}
@@ -225,7 +355,7 @@ export const StandingsPager: React.FC<StandingsPagerProps> = ({ data, onExit }) 
       {/* Help text */}
       <Box marginTop={1}>
         <Text dimColor>
-          ↑↓: Line | PgUp/PgDn/Space: Page | ←→: Scroll | g/G: Top/Bottom | /?: Search | n/N: Next/Prev | q: Quit
+          ↑↓: Line | PgUp/PgDn/Space: Page | ←→: Scroll | g/G: Top/Bottom | s: Sort | /?: Search | n/N: Next/Prev | q: Quit
         </Text>
       </Box>
     </Box>

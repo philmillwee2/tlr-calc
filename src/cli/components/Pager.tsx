@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Text, useInput, useApp, Key } from 'ink';
 import { DriverEntry } from '../../api/index.js';
 import { useScrollOffset } from '../hooks/useScrollOffset.js';
+import { createSortComparator, SortDirection } from '../utils/sorting.js';
 
 interface PagerProps {
   data: DriverEntry[];
@@ -20,9 +21,22 @@ export const Pager: React.FC<PagerProps> = ({ data, onExit }) => {
   const [searchResults, setSearchResults] = useState<number[]>([]);
   const [currentSearchIndex, setCurrentSearchIndex] = useState(0);
 
+  // Sorting state
+  const [sortMode, setSortMode] = useState<boolean>(false);
+  const [sortColumn, setSortColumn] = useState<number | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [selectedColumn, setSelectedColumn] = useState<number>(0);
+  const [displayData, setDisplayData] = useState<DriverEntry[]>(data);
+
   const pageSize = 20; // Number of rows to display at once
   const columnWidth = 20; // Width for each column
-  const maxScroll = Math.max(0, data.length - pageSize);
+  const maxScroll = Math.max(0, displayData.length - pageSize);
+
+  // Reset displayData when props change
+  useEffect(() => {
+    setDisplayData(data);
+    setSortColumn(null);
+  }, [data]);
 
   // Calculate visible columns based on horizontal offset
   const columns = [
@@ -39,7 +53,74 @@ export const Pager: React.FC<PagerProps> = ({ data, onExit }) => {
 
   const visibleColumns = columns.slice(horizontalOffset);
 
+  // Apply sorting
+  const applySorting = (colIndex: number, direction: SortDirection) => {
+    const column = columns[colIndex];
+    const sorted = [...displayData].sort(
+      createSortComparator<DriverEntry>(
+        column.key as keyof DriverEntry,
+        direction
+      )
+    );
+    setDisplayData(sorted);
+  };
+
   useInput((input: string, key: Key) => {
+    // Sort mode handling
+    if (input === 's' && searchMode === 'none') {
+      if (sortMode && sortColumn !== null) {
+        // Already in sort mode - jump to current sort column
+        setSelectedColumn(sortColumn);
+      } else {
+        // Enter sort mode
+        setSortMode(true);
+        setSelectedColumn(sortColumn ?? 0);
+      }
+      return;
+    }
+
+    if (sortMode) {
+      if (key.escape) {
+        setSortMode(false);
+        return;
+      }
+
+      if (key.leftArrow) {
+        setSelectedColumn(prev => Math.max(0, prev - 1));
+        return;
+      }
+
+      if (key.rightArrow) {
+        setSelectedColumn(prev => Math.min(columns.length - 1, prev + 1));
+        return;
+      }
+
+      if (key.return) {
+        // Apply sort
+        if (sortColumn === selectedColumn) {
+          // Toggle direction
+          const newDirection: SortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+          setSortDirection(newDirection);
+          applySorting(selectedColumn, newDirection);
+        } else {
+          // New column - start with ascending
+          setSortColumn(selectedColumn);
+          setSortDirection('asc');
+          applySorting(selectedColumn, 'asc');
+        }
+
+        // Clear search results
+        setSearchResults([]);
+        setCurrentSearchIndex(0);
+
+        // Exit sort mode
+        setSortMode(false);
+        return;
+      }
+
+      return; // Prevent normal controls
+    }
+
     if (searchMode !== 'none') {
       // Handle search input
       if (key.return) {
@@ -100,7 +181,7 @@ export const Pager: React.FC<PagerProps> = ({ data, onExit }) => {
     const results: number[] = [];
     const term = searchTerm.toLowerCase();
 
-    data.forEach((entry, index) => {
+    displayData.forEach((entry, index) => {
       const searchableText = Object.values(entry).join(' ').toLowerCase();
       if (searchableText.includes(term)) {
         results.push(index);
@@ -119,18 +200,37 @@ export const Pager: React.FC<PagerProps> = ({ data, onExit }) => {
     }
   };
 
-  const visibleData = data.slice(scrollOffset, scrollOffset + pageSize);
+  const visibleData = displayData.slice(scrollOffset, scrollOffset + pageSize);
 
   return (
     <Box flexDirection="column">
       {/* Header */}
       <Box borderStyle="single" paddingX={1} marginBottom={1}>
         <Text bold>
-          {visibleColumns.map(col => (
-            <Text key={col.key} color="cyan">
-              {col.label.padEnd(col.width)}
-            </Text>
-          ))}
+          {visibleColumns.map((col, visibleIdx) => {
+            const actualColIndex = horizontalOffset + visibleIdx;
+            const isSorted = sortColumn === actualColIndex;
+            const isSelected = sortMode && selectedColumn === actualColIndex;
+
+            // Determine color
+            let color: string = 'cyan';
+            if (isSorted) color = 'yellow';      // Sorted column
+            if (isSelected) color = 'green';     // Currently selected in sort mode
+
+            // Sort indicator
+            const sortIndicator = isSorted
+              ? (sortDirection === 'asc' ? ' ↑' : ' ↓')
+              : '';
+
+            const labelWithIndicator = col.label + sortIndicator;
+            const padding = Math.max(0, col.width - labelWithIndicator.length);
+
+            return (
+              <Text key={col.key} color={color}>
+                {labelWithIndicator}{' '.repeat(padding)}
+              </Text>
+            );
+          })}
         </Text>
       </Box>
 
@@ -168,9 +268,15 @@ export const Pager: React.FC<PagerProps> = ({ data, onExit }) => {
             <>
               {searchMode === 'forward' ? '/' : '?'}{searchTerm}
             </>
+          ) : sortMode ? (
+            <>SORT MODE: Use ←→ to select column, Enter to sort, ESC to cancel</>
+          ) : sortColumn !== null ? (
+            <>
+              Showing {scrollOffset + 1}-{Math.min(scrollOffset + pageSize, displayData.length)} of {displayData.length} | Sorted by: {columns[sortColumn].label} {sortDirection === 'asc' ? '↑' : '↓'}
+            </>
           ) : (
             <>
-              Showing {scrollOffset + 1}-{Math.min(scrollOffset + pageSize, data.length)} of {data.length} entries
+              Showing {scrollOffset + 1}-{Math.min(scrollOffset + pageSize, displayData.length)} of {displayData.length} entries
               {searchResults.length > 0 && (
                 <> | Match {currentSearchIndex + 1}/{searchResults.length}</>
               )}
@@ -182,7 +288,7 @@ export const Pager: React.FC<PagerProps> = ({ data, onExit }) => {
       {/* Help text */}
       <Box marginTop={1}>
         <Text dimColor>
-          ↑↓: Line | PgUp/PgDn/Space: Page | ←→: Scroll | g/G: Top/Bottom | /?: Search | n/N: Next/Prev | q: Quit
+          ↑↓: Line | PgUp/PgDn/Space: Page | ←→: Scroll | g/G: Top/Bottom | s: Sort | /?: Search | n/N: Next/Prev | q: Quit
         </Text>
       </Box>
     </Box>
