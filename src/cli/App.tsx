@@ -4,8 +4,9 @@ import path from 'path';
 import { StatusBar } from './components/StatusBar.js';
 import { Menu } from './components/Menu.js';
 import { Pager } from './components/Pager.js';
+import { StandingsPager } from './components/StandingsPager.js';
 import { FileInput } from './components/FileInput.js';
-import { loadXLSX, DriverEntry } from '../api/index.js';
+import { loadAllData, DriverEntry, StandingsEntry } from '../api/index.js';
 
 /**
  * Main application component
@@ -13,7 +14,8 @@ import { loadXLSX, DriverEntry } from '../api/index.js';
 export const App: React.FC = () => {
   const [loadedFile, setLoadedFile] = useState<string | null>(null);
   const [data, setData] = useState<DriverEntry[] | null>(null);
-  const [currentView, setCurrentView] = useState<'menu' | 'pager' | 'fileInput'>('menu');
+  const [standingsData, setStandingsData] = useState<{ LMP3: StandingsEntry[]; GT4: StandingsEntry[]; GT3: StandingsEntry[] } | null>(null);
+  const [currentView, setCurrentView] = useState<'menu' | 'pager' | 'standingsPager' | 'fileInput'>('menu');
   const [error, setError] = useState<string | null>(null);
 
   const handleLoadFile = () => {
@@ -49,8 +51,10 @@ export const App: React.FC = () => {
         ? sanitizedPath
         : path.resolve(process.cwd(), sanitizedPath);
 
-      const entries = loadXLSX(resolvedPath);
-      setData(entries);
+      // Load both entry list and standings data
+      const allData = loadAllData(resolvedPath);
+      setData(allData.entryList);
+      setStandingsData(allData.standings);
       setLoadedFile(path.basename(resolvedPath));
       setError(null);
       setCurrentView('menu');
@@ -71,7 +75,17 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleDisplayStandings = () => {
+    if (standingsData) {
+      setCurrentView('standingsPager');
+    }
+  };
+
   const handleExitPager = () => {
+    setCurrentView('menu');
+  };
+
+  const handleExitStandingsPager = () => {
     setCurrentView('menu');
   };
 
@@ -99,6 +113,7 @@ export const App: React.FC = () => {
         <Menu
           onLoadFile={handleLoadFile}
           onDisplayData={handleDisplayData}
+          onDisplayStandings={handleDisplayStandings}
           onQuit={handleQuit}
           hasData={data !== null}
         />
@@ -113,6 +128,13 @@ export const App: React.FC = () => {
 
       {currentView === 'pager' && (
         <Pager data={data!} onExit={handleExitPager} />
+      )}
+
+      {currentView === 'standingsPager' && standingsData && (
+        <StandingsPager
+          data={[...standingsData.LMP3, ...standingsData.GT4, ...standingsData.GT3]}
+          onExit={handleExitStandingsPager}
+        />
       )}
     </Box>
   );

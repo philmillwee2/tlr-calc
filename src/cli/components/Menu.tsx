@@ -5,6 +5,7 @@ import SelectInput from 'ink-select-input';
 interface MenuProps {
   onLoadFile: () => void;
   onDisplayData: () => void;
+  onDisplayStandings: () => void;
   onQuit: () => void;
   hasData: boolean;
 }
@@ -12,7 +13,7 @@ interface MenuProps {
 /**
  * Menu component - Interactive menu with arrow key navigation
  */
-export const Menu: React.FC<MenuProps> = ({ onLoadFile, onDisplayData, onQuit, hasData }) => {
+export const Menu: React.FC<MenuProps> = ({ onLoadFile, onDisplayData, onDisplayStandings, onQuit, hasData }) => {
   const items = [
     {
       label: 'Load File',
@@ -21,6 +22,11 @@ export const Menu: React.FC<MenuProps> = ({ onLoadFile, onDisplayData, onQuit, h
     {
       label: 'Display Data',
       value: 'display',
+      disabled: !hasData,
+    },
+    {
+      label: 'Display Standings',
+      value: 'standings',
       disabled: !hasData,
     },
     {
@@ -36,6 +42,9 @@ export const Menu: React.FC<MenuProps> = ({ onLoadFile, onDisplayData, onQuit, h
         break;
       case 'display':
         onDisplayData();
+        break;
+      case 'standings':
+        onDisplayStandings();
         break;
       case 'quit':
         onQuit();
