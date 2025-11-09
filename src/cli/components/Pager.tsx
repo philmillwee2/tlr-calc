@@ -86,19 +86,19 @@ export const Pager: React.FC<PagerProps> = ({ data, onExit }) => {
       }
 
       if (key.leftArrow) {
-        setSelectedColumn(prev => Math.max(0, prev - 1));
+        setSelectedColumn(prev => prev === 0 ? columns.length - 1 : prev - 1);
         return;
       }
 
       if (key.rightArrow) {
-        setSelectedColumn(prev => Math.min(columns.length - 1, prev + 1));
+        setSelectedColumn(prev => prev === columns.length - 1 ? 0 : prev + 1);
         return;
       }
 
       if (key.return) {
         // Apply sort
         if (sortColumn === selectedColumn) {
-          // Toggle direction
+          // Toggle direction (stay in sort mode)
           const newDirection: SortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
           setSortDirection(newDirection);
           applySorting(selectedColumn, newDirection);
@@ -113,8 +113,7 @@ export const Pager: React.FC<PagerProps> = ({ data, onExit }) => {
         setSearchResults([]);
         setCurrentSearchIndex(0);
 
-        // Exit sort mode
-        setSortMode(false);
+        // Stay in sort mode - user can toggle or select another column
         return;
       }
 
