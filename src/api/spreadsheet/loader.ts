@@ -43,6 +43,7 @@ export function loadStandings(
 
 /**
  * Loads both entry list and standings data from an XLSX file
+ * and enriches entry list with car data from standings
  */
 export function loadAllData(filePath: string): {
   entryList: DriverEntry[];
@@ -59,10 +60,42 @@ export function loadAllData(filePath: string): {
   if (!entryListSheet) {
     throw new Error('Entry List sheet not found in workbook');
   }
-  const entryList = parseEntryListSheet(entryListSheet);
+  let entryList = parseEntryListSheet(entryListSheet);
 
   // Parse standings
   const standings = parseAllStandings(workbook, STANDINGS_CONFIGS);
+
+  // Enrich entry list with car data from standings
+  // Create a map of driver name to car for each series
+  const carMap = new Map<string, string>();
+
+  [...standings.LMP3, ...standings.GT4, ...standings.GT3].forEach(standingsEntry => {
+    if (standingsEntry.car) {
+      const key = `${standingsEntry.name.toLowerCase().trim()}-${standingsEntry.series}`;
+      carMap.set(key, standingsEntry.car);
+    }
+  });
+
+  // Update entry list with car data from standings
+  entryList = entryList.map(entry => {
+    // If entry already has car selection, keep it
+    if (entry.carSelection && entry.carSelection.trim() !== '') {
+      return entry;
+    }
+
+    // Otherwise, get car from standings
+    const key = `${entry.name.toLowerCase().trim()}-${entry.series}`;
+    const carFromStandings = carMap.get(key);
+
+    if (carFromStandings) {
+      return {
+        ...entry,
+        carSelection: carFromStandings
+      };
+    }
+
+    return entry;
+  });
 
   return { entryList, standings };
 }

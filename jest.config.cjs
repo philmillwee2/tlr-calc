@@ -30,7 +30,7 @@ module.exports = {
     }],
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(ink-testing-library)/)',
+    'node_modules/(?!(ink-testing-library|ink|ink-select-input|ink-text-input)/)',
   ],
   extensionsToTreatAsEsm: ['.ts', '.tsx'],
   testEnvironmentOptions: {

@@ -121,6 +121,7 @@ describe('parseStandingsSheet', () => {
       expect(entries[0]).toMatchObject({
         name: 'John Doe',
         series: 'LMP3',
+        car: 'Ligier',
         totalPoints: 120,
         overallRank: 1
       });
@@ -254,6 +255,7 @@ describe('parseStandingsSheet', () => {
       expect(entries[0]).toMatchObject({
         name: 'Bob Jones',
         series: 'GT4',
+        car: 'BMW',
         totalPoints: 95,
         overallRank: 1
       });
@@ -275,6 +277,7 @@ describe('parseStandingsSheet', () => {
       const entries = parseStandingsSheet(testSheet, 'GT3', STANDINGS_CONFIGS.GT3);
 
       expect(entries[0]?.series).toBe('GT3');
+      expect(entries[0]?.car).toBe('Porsche');
     });
   });
 });

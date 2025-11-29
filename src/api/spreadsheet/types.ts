@@ -32,6 +32,7 @@ export interface RaceResult {
 export interface StandingsEntry {
   name: string;            // Driver name (matches DriverEntry.name)
   series: 'LMP3' | 'GT4' | 'GT3';
+  car?: string;            // Car selection (LMP3: Ligier, GT3/GT4: from sheet)
   totalPoints: number;     // Total points across all rounds
   raceResults: RaceResult[]; // Individual race results (up to 16)
   overallRank: number;     // Position in overall standings

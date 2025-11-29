@@ -36,10 +36,11 @@ export const StandingsPager: React.FC<StandingsPagerProps> = ({ data, onExit }) 
     setSortColumn(null);
   }, [data]);
 
-  // Define all columns (20 total)
+  // Define all columns (21 total)
   const columns = [
     { key: 'name', label: 'Name', width: 25 },
     { key: 'series', label: 'Series', width: 8 },
+    { key: 'car', label: 'Car', width: 15 },
     { key: 'totalPoints', label: 'Total', width: 8 },
     { key: 'overallRank', label: 'Rank', width: 6 },
     { key: 'r1_sprint', label: 'R1 Spr', width: 8 },
@@ -316,6 +317,8 @@ return;
                     value = entry.name;
                   } else if (col.key === 'series') {
                     value = entry.series;
+                  } else if (col.key === 'car') {
+                    value = entry.car || '';
                   } else if (col.key === 'totalPoints') {
                     value = String(entry.totalPoints);
                   } else if (col.key === 'overallRank') {

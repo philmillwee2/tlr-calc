@@ -82,6 +82,16 @@ export function parseStandingsSheet(
       continue;
     }
 
+    // Get car selection
+    // LMP3 always uses Ligier, GT3/GT4 read from sheet
+    let car: string | undefined;
+    if (series === 'LMP3') {
+      car = 'Ligier';
+    } else if (config.carColumn) {
+      const carValue = getCellValue(sheet, row, config.carColumn);
+      car = carValue && carValue.trim() !== '' ? carValue.trim() : undefined;
+    }
+
     // Get total points
     const totalPoints = getRacePoints(sheet, row, config.totalColumn);
 
@@ -115,6 +125,7 @@ export function parseStandingsSheet(
     const entry: StandingsEntry = {
       name: name.trim(),
       series,
+      car,
       totalPoints,
       raceResults,
       overallRank
