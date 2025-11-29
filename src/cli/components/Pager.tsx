@@ -49,7 +49,22 @@ export const Pager: React.FC<PagerProps> = ({ data, onExit }) => {
     { key: 'carSwap', label: 'Swap', width: 8 },
   ];
 
-  const visibleColumns = columns.slice(horizontalOffset);
+  // Calculate visible columns to fit terminal width (~110 chars to avoid wrapping)
+  const maxWidth = 110;
+  const visibleColumns: typeof columns = [];
+  let currentWidth = 0;
+
+  for (let i = horizontalOffset; i < columns.length; i++) {
+    const col = columns[i];
+    if (!col) break;
+
+    if (currentWidth + col.width > maxWidth) {
+      break;
+    }
+
+    visibleColumns.push(col);
+    currentWidth += col.width;
+  }
 
   // Apply sorting
   const applySorting = (colIndex: number, direction: SortDirection) => {

@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Text, useInput, Key } from 'ink';
-import { StandingsEntry } from '../../api/index.js';
+import { DriverOverride } from '../../api/index.js';
 import { useScrollOffset } from '../hooks/useScrollOffset.js';
 import { createSortComparator, SortDirection } from '../utils/sorting.js';
 
-interface StandingsPagerProps {
-  data: StandingsEntry[];
+interface OverridesPagerProps {
+  data: DriverOverride[];
   onExit: () => void;
 }
 
 /**
- * StandingsPager component - Displays standings data with GNU less-like controls
+ * OverridesPager component - Displays driver overrides with GNU less-like controls
+ * Mirrors StandingsPager pattern for consistency
  */
-export const StandingsPager: React.FC<StandingsPagerProps> = ({ data, onExit }) => {
+export const OverridesPager: React.FC<OverridesPagerProps> = ({ data, onExit }) => {
   const [scrollOffset, scrollOffsetRef] = useScrollOffset(0);
   const [horizontalOffset, horizontalOffsetRef] = useScrollOffset(0);
   const [searchMode, setSearchMode] = useState<'none' | 'forward' | 'reverse'>('none');
@@ -25,9 +26,9 @@ export const StandingsPager: React.FC<StandingsPagerProps> = ({ data, onExit }) 
   const [sortColumn, setSortColumn] = useState<number | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [selectedColumn, setSelectedColumn] = useState<number>(0);
-  const [displayData, setDisplayData] = useState<StandingsEntry[]>(data);
+  const [displayData, setDisplayData] = useState<DriverOverride[]>(data);
 
-  const pageSize = 20; // Number of rows to display at once
+  const pageSize = 20;
   const maxScroll = Math.max(0, displayData.length - pageSize);
 
   // Reset displayData when props change
@@ -36,29 +37,33 @@ export const StandingsPager: React.FC<StandingsPagerProps> = ({ data, onExit }) 
     setSortColumn(null);
   }, [data]);
 
-  // Define all columns (21 total)
+  // Define all 25 columns - labels match CSV headers exactly
   const columns = [
-    { key: 'name', label: 'Name', width: 25 },
-    { key: 'series', label: 'Series', width: 8 },
-    { key: 'car', label: 'Car', width: 15 },
-    { key: 'totalPoints', label: 'Total', width: 8 },
-    { key: 'overallRank', label: 'Rank', width: 6 },
-    { key: 'r1_sprint', label: 'R1 Spr', width: 8 },
-    { key: 'r1_feature', label: 'R1 Ftr', width: 8 },
-    { key: 'r2_sprint', label: 'R2 Spr', width: 8 },
-    { key: 'r2_feature', label: 'R2 Ftr', width: 8 },
-    { key: 'r3_sprint', label: 'R3 Spr', width: 8 },
-    { key: 'r3_feature', label: 'R3 Ftr', width: 8 },
-    { key: 'r4_sprint', label: 'R4 Spr', width: 8 },
-    { key: 'r4_feature', label: 'R4 Ftr', width: 8 },
-    { key: 'r5_sprint', label: 'R5 Spr', width: 8 },
-    { key: 'r5_feature', label: 'R5 Ftr', width: 8 },
-    { key: 'r6_sprint', label: 'R6 Spr', width: 8 },
-    { key: 'r6_feature', label: 'R6 Ftr', width: 8 },
-    { key: 'r7_sprint', label: 'R7 Spr', width: 8 },
-    { key: 'r7_feature', label: 'R7 Ftr', width: 8 },
-    { key: 'r8_sprint', label: 'R8 Spr', width: 8 },
-    { key: 'r8_feature', label: 'R8 Ftr', width: 8 },
+    { key: 'iRacingName', label: 'iRacing name', width: 20 },
+    { key: 'iRacingId', label: 'iRacing ID', width: 12 },
+    { key: 'multicarTeamBgColor', label: 'Multicar team background color', width: 32 },
+    { key: 'multicarTeamTextColor', label: 'Multicar team text color', width: 28 },
+    { key: 'multicarTeamLogoUrl', label: 'Multicar team logo url', width: 25 },
+    { key: 'iRacingCarColorOverride', label: 'iRacing car color override', width: 30 },
+    { key: 'iRacingCarNumberColorOverride', label: 'iRacing car number color override', width: 38 },
+    { key: 'firstNameOverride', label: 'First name override', width: 22 },
+    { key: 'lastNameOverride', label: 'Last name override', width: 22 },
+    { key: 'suffixOverride', label: 'Suffix override', width: 18 },
+    { key: 'initialsOverride', label: 'Initials override', width: 20 },
+    { key: 'iRacingTeamNameOverride', label: 'iRacing team name override', width: 30 },
+    { key: 'multicarTeamName', label: 'Multicar team name', width: 22 },
+    { key: 'highlight', label: 'Highlight', width: 12 },
+    { key: 'clubNameOverride', label: 'Club name override', width: 22 },
+    { key: 'photoUrl', label: 'Photo URL', width: 15 },
+    { key: 'numberUrl', label: 'Number URL', width: 15 },
+    { key: 'carUrl', label: 'Car Url', width: 15 },
+    { key: 'class1', label: 'Class 1', width: 10 },
+    { key: 'class2', label: 'Class 2', width: 10 },
+    { key: 'class3', label: 'Class 3', width: 10 },
+    { key: 'birthDate', label: 'Birth date', width: 15 },
+    { key: 'homeTown', label: 'Home town', width: 15 },
+    { key: 'driverHeader', label: 'Driver header', width: 18 },
+    { key: 'driverInformation', label: 'Driver information', width: 22 },
   ];
 
   // Calculate visible columns to fit terminal width (~110 chars to avoid wrapping)
@@ -78,24 +83,6 @@ export const StandingsPager: React.FC<StandingsPagerProps> = ({ data, onExit }) 
     currentWidth += col.width;
   }
 
-  // Helper function to get race result value
-  const getRaceValue = (entry: StandingsEntry, round: number, raceType: 'Sprint' | 'Feature'): string => {
-    const result = entry.raceResults.find(r => r.round === round && r.raceType === raceType);
-    return result ? String(result.points) : '0';
-  };
-
-  // Helper function to get race result value for sorting
-  const getRaceValueForSort = (entry: StandingsEntry, key: string): number => {
-    const match = key.match(/r(\d+)_(sprint|feature)/);
-    if (match?.[1] && match?.[2]) {
-      const round = parseInt(match[1]);
-      const raceType = match[2] === 'sprint' ? 'Sprint' : 'Feature';
-      const result = entry.raceResults.find(r => r.round === round && r.raceType === raceType);
-      return result ? result.points : 0;
-    }
-    return 0;
-  };
-
   // Apply sorting
   const applySorting = (colIndex: number, direction: SortDirection) => {
     const column = columns[colIndex];
@@ -103,34 +90,21 @@ export const StandingsPager: React.FC<StandingsPagerProps> = ({ data, onExit }) 
       return;
     }
 
-    if (column.key.startsWith('r')) {
-      // Race column - extract points from raceResults
-      const sorted = [...displayData].sort((a, b) => {
-        const aVal = getRaceValueForSort(a, column.key);
-        const bVal = getRaceValueForSort(b, column.key);
-        return direction === 'asc' ? aVal - bVal : bVal - aVal;
-      });
-      setDisplayData(sorted);
-    } else {
-      // Standard column
-      const sorted = [...displayData].sort(
-        createSortComparator<StandingsEntry>(
-          column.key as keyof StandingsEntry,
-          direction
-        )
-      );
-      setDisplayData(sorted);
-    }
+    const sorted = [...displayData].sort(
+      createSortComparator<DriverOverride>(
+        column.key as keyof DriverOverride,
+        direction
+      )
+    );
+    setDisplayData(sorted);
   };
 
   useInput((input: string, key: Key) => {
     // Sort mode handling
     if (input === 's' && searchMode === 'none') {
       if (sortMode && sortColumn !== null) {
-        // Already in sort mode - jump to current sort column
         setSelectedColumn(sortColumn);
       } else {
-        // Enter sort mode
         setSortMode(true);
         setSelectedColumn(sortColumn ?? 0);
       }
@@ -154,32 +128,25 @@ export const StandingsPager: React.FC<StandingsPagerProps> = ({ data, onExit }) 
       }
 
       if (key.return) {
-        // Apply sort
         if (sortColumn === selectedColumn) {
-          // Toggle direction (stay in sort mode)
           const newDirection: SortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
           setSortDirection(newDirection);
           applySorting(selectedColumn, newDirection);
         } else {
-          // New column - start with ascending
           setSortColumn(selectedColumn);
           setSortDirection('asc');
           applySorting(selectedColumn, 'asc');
         }
 
-        // Clear search results
         setSearchResults([]);
         setCurrentSearchIndex(0);
-
-        // Stay in sort mode - user can toggle or select another column
         return;
       }
 
-      return; // Prevent normal controls
+      return;
     }
 
     if (searchMode !== 'none') {
-      // Handle search input
       if (key.return) {
         performSearch();
         setSearchMode('none');
@@ -220,7 +187,6 @@ export const StandingsPager: React.FC<StandingsPagerProps> = ({ data, onExit }) 
       setSearchMode('reverse');
       setSearchTerm('');
     } else if (input === 'n' && searchResults.length > 0) {
-      // Next search result
       const nextIndex = (currentSearchIndex + 1) % searchResults.length;
       setCurrentSearchIndex(nextIndex);
       const nextResult = searchResults[nextIndex];
@@ -228,7 +194,6 @@ export const StandingsPager: React.FC<StandingsPagerProps> = ({ data, onExit }) 
         scrollOffsetRef.current = nextResult;
       }
     } else if (input === 'N' && searchResults.length > 0) {
-      // Previous search result
       const prevIndex = currentSearchIndex === 0 ? searchResults.length - 1 : currentSearchIndex - 1;
       setCurrentSearchIndex(prevIndex);
       const prevResult = searchResults[prevIndex];
@@ -240,20 +205,27 @@ export const StandingsPager: React.FC<StandingsPagerProps> = ({ data, onExit }) 
 
   const performSearch = () => {
     if (!searchTerm) {
-return;
-}
+      return;
+    }
 
     const results: number[] = [];
     const term = searchTerm.toLowerCase();
 
     displayData.forEach((entry, index) => {
-      // Search in name, series, total points, rank, and all race results
+      // Search across all text fields
       const searchableText = [
-        entry.name,
-        entry.series,
-        String(entry.totalPoints),
-        String(entry.overallRank),
-        ...entry.raceResults.map(r => String(r.points))
+        entry.iRacingName,
+        String(entry.iRacingId),
+        entry.firstNameOverride,
+        entry.lastNameOverride,
+        entry.initialsOverride,
+        entry.iRacingTeamNameOverride,
+        entry.clubNameOverride,
+        entry.class1,
+        entry.class2,
+        entry.class3,
+        entry.iRacingCarColorOverride,
+        entry.iRacingCarNumberColorOverride
       ].join(' ').toLowerCase();
 
       if (searchableText.includes(term)) {
@@ -289,16 +261,14 @@ return;
             const isSorted = sortColumn === actualColIndex;
             const isSelected = sortMode && selectedColumn === actualColIndex;
 
-            // Determine color
             let color: string = 'cyan';
             if (isSorted) {
               color = 'yellow';
-            }      // Sorted column
+            }
             if (isSelected) {
               color = 'green';
-            }     // Currently selected in sort mode
+            }
 
-            // Sort indicator
             const sortIndicator = isSorted
               ? (sortDirection === 'asc' ? ' ↑' : ' ↓')
               : '';
@@ -326,32 +296,7 @@ return;
             <Box key={actualIndex}>
               <Text backgroundColor={isCurrentResult ? 'yellow' : undefined} color={isCurrentResult ? 'black' : undefined}>
                 {visibleColumns.map(col => {
-                  let value: string;
-
-                  if (col.key === 'name') {
-                    value = entry.name;
-                  } else if (col.key === 'series') {
-                    value = entry.series;
-                  } else if (col.key === 'car') {
-                    // Show (missing) for empty car selections
-                    value = entry.car && entry.car.trim() !== '' ? entry.car : '(missing)';
-                  } else if (col.key === 'totalPoints') {
-                    value = String(entry.totalPoints);
-                  } else if (col.key === 'overallRank') {
-                    value = String(entry.overallRank);
-                  } else if (col.key.startsWith('r')) {
-                    // Parse round and race type from key (e.g., 'r1_sprint' -> round 1, Sprint)
-                    const match = col.key.match(/r(\d+)_(sprint|feature)/);
-                    if (match?.[1] && match?.[2]) {
-                      const round = parseInt(match[1]);
-                      const raceType = match[2] === 'sprint' ? 'Sprint' : 'Feature';
-                      value = getRaceValue(entry, round, raceType);
-                    } else {
-                      value = '';
-                    }
-                  } else {
-                    value = '';
-                  }
+                  const value = String(entry[col.key as keyof DriverOverride] ?? '');
 
                   return (
                     <Text key={col.key} color={isSearchResult ? 'green' : undefined}>

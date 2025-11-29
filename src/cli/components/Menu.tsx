@@ -6,6 +6,7 @@ interface MenuProps {
   onLoadFile: () => void;
   onDisplayData: () => void;
   onDisplayStandings: () => void;
+  onDisplayOverrides: () => void;
   onQuit: () => void;
   hasData: boolean;
 }
@@ -13,7 +14,7 @@ interface MenuProps {
 /**
  * Menu component - Interactive menu with arrow key navigation
  */
-export const Menu: React.FC<MenuProps> = ({ onLoadFile, onDisplayData, onDisplayStandings, onQuit, hasData }) => {
+export const Menu: React.FC<MenuProps> = ({ onLoadFile, onDisplayData, onDisplayStandings, onDisplayOverrides, onQuit, hasData }) => {
   const items = [
     {
       label: 'Load File',
@@ -27,6 +28,11 @@ export const Menu: React.FC<MenuProps> = ({ onLoadFile, onDisplayData, onDisplay
     {
       label: 'Display Standings',
       value: 'standings',
+      disabled: !hasData,
+    },
+    {
+      label: 'Display Overrides',
+      value: 'overrides',
       disabled: !hasData,
     },
     {
@@ -45,6 +51,9 @@ export const Menu: React.FC<MenuProps> = ({ onLoadFile, onDisplayData, onDisplay
         break;
       case 'standings':
         onDisplayStandings();
+        break;
+      case 'overrides':
+        onDisplayOverrides();
         break;
       case 'quit':
         onQuit();

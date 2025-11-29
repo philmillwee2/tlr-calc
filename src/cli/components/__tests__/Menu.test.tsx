@@ -25,6 +25,7 @@ describe('Menu', () => {
     onLoadFile: jest.fn(),
     onDisplayData: jest.fn(),
     onDisplayStandings: jest.fn(),
+    onDisplayOverrides: jest.fn(),
     onQuit: jest.fn(),
   };
 
@@ -121,6 +122,7 @@ describe('Menu', () => {
       onLoadFile: jest.fn(),
       onDisplayData: jest.fn(),
       onDisplayStandings: jest.fn(),
+      onDisplayOverrides: jest.fn(),
       onQuit: jest.fn(),
       hasData: false,
     };
@@ -132,10 +134,11 @@ describe('Menu', () => {
     expect(props.onLoadFile).not.toHaveBeenCalled();
     expect(props.onDisplayData).not.toHaveBeenCalled();
     expect(props.onDisplayStandings).not.toHaveBeenCalled();
+    expect(props.onDisplayOverrides).not.toHaveBeenCalled();
     expect(props.onQuit).not.toHaveBeenCalled();
   });
 
-  it('should have 4 menu items (Load File, Display Data, Display Standings, Quit)', () => {
+  it('should have 5 menu items (Load File, Display Data, Display Standings, Display Overrides, Quit)', () => {
     const props = { ...mockCallbacks, hasData: false };
     const result = Menu(props);
 

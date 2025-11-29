@@ -5,8 +5,9 @@ import { StatusBar } from './components/StatusBar.js';
 import { Menu } from './components/Menu.js';
 import { Pager } from './components/Pager.js';
 import { StandingsPager } from './components/StandingsPager.js';
+import { OverridesPager } from './components/OverridesPager.js';
 import { FileInput } from './components/FileInput.js';
-import { loadAllData, DriverEntry, StandingsEntry } from '../api/index.js';
+import { loadAllData, DriverEntry, StandingsEntry, parseOverrides, DriverOverride } from '../api/index.js';
 
 /**
  * Main application component
@@ -19,7 +20,8 @@ export const App: React.FC = () => {
     GT4: StandingsEntry[];
     GT3: StandingsEntry[];
   } | null>(null);
-  const [currentView, setCurrentView] = useState<'menu' | 'pager' | 'standingsPager' | 'fileInput'>(
+  const [overridesData, setOverridesData] = useState<DriverOverride[] | null>(null);
+  const [currentView, setCurrentView] = useState<'menu' | 'pager' | 'standingsPager' | 'overridesPager' | 'fileInput'>(
     'menu'
   );
   const [error, setError] = useState<string | null>(null);
@@ -57,10 +59,15 @@ export const App: React.FC = () => {
         ? sanitizedPath
         : path.resolve(process.cwd(), sanitizedPath);
 
-      // Load both entry list and standings data
+      // Load all data
       const allData = loadAllData(resolvedPath);
       setData(allData.entryList);
       setStandingsData(allData.standings);
+
+      // Generate overrides from entry list
+      const overrides = parseOverrides(allData.entryList);
+      setOverridesData(overrides);
+
       setLoadedFile(path.basename(resolvedPath));
       setError(null);
       setCurrentView('menu');
@@ -87,11 +94,21 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleDisplayOverrides = () => {
+    if (overridesData) {
+      setCurrentView('overridesPager');
+    }
+  };
+
   const handleExitPager = () => {
     setCurrentView('menu');
   };
 
   const handleExitStandingsPager = () => {
+    setCurrentView('menu');
+  };
+
+  const handleExitOverridesPager = () => {
     setCurrentView('menu');
   };
 
@@ -120,6 +137,7 @@ export const App: React.FC = () => {
           onLoadFile={handleLoadFile}
           onDisplayData={handleDisplayData}
           onDisplayStandings={handleDisplayStandings}
+          onDisplayOverrides={handleDisplayOverrides}
           onQuit={handleQuit}
           hasData={data !== null}
         />
@@ -140,6 +158,13 @@ export const App: React.FC = () => {
         <StandingsPager
           data={[...standingsData.LMP3, ...standingsData.GT4, ...standingsData.GT3]}
           onExit={handleExitStandingsPager}
+        />
+      )}
+
+      {currentView === 'overridesPager' && overridesData && (
+        <OverridesPager
+          data={overridesData}
+          onExit={handleExitOverridesPager}
         />
       )}
     </Box>
