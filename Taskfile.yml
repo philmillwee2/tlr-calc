@@ -38,6 +38,11 @@ tasks:
     cmds:
       - npm run lint:fix
 
+  scan:
+    desc: Run CI tests
+    cmds:
+      - semgrep ci
+
   test:
     desc: Run tests
     cmds:

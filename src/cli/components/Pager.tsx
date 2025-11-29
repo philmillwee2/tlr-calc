@@ -264,6 +264,11 @@ return;
                   let value = entry[col.key as keyof DriverEntry];
                   if (col.key === 'carSwap') {
                     value = value ? 'Yes' : 'No';
+                  } else if (col.key === 'carSelection') {
+                    // Show (missing) for empty car selections
+                    if (!value || String(value).trim() === '') {
+                      value = '(missing)';
+                    }
                   }
                   return (
                     <Text key={col.key} color={isSearchResult ? 'green' : undefined}>

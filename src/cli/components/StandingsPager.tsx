@@ -318,7 +318,8 @@ return;
                   } else if (col.key === 'series') {
                     value = entry.series;
                   } else if (col.key === 'car') {
-                    value = entry.car || '';
+                    // Show (missing) for empty car selections
+                    value = entry.car && entry.car.trim() !== '' ? entry.car : '(missing)';
                   } else if (col.key === 'totalPoints') {
                     value = String(entry.totalPoints);
                   } else if (col.key === 'overallRank') {

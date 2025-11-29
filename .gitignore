@@ -33,4 +33,5 @@ yarn-error.log*
 tmp/
 .claude/sessions/
 .venv/
+package-lock.json
 
