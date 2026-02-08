@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(tree:*)",
+      "Bash(task install:*)",
+      "Bash(task build)",
+      "Bash(task clean:*)",
+      "Bash(task test)",
+      "Bash(xargs ls:*)",
+      "Bash(task run)",
+      "Bash(timeout:*)",
+      "Bash(npm install:*)",
+      "Bash(chmod:*)",
+      "Bash(node test-file-loading.js:*)",
+      "Bash(node:*)",
+      "Bash(npx xlsx-cli:*)",
+      "Bash(npx tsx:*)",
+      "Bash(mkdir:*)",
+      "Bash(npx tsc)",
+      "Bash(npm run build:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run test:coverage:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run lint:fix:*)",
+      "Bash(task lint)",
+      "Bash(npm start)",
+      "Bash(npx jest:*)",
+      "Bash(task test:coverage:*)",
+      "Bash(npx tsc:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
